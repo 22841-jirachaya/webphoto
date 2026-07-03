@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบเก็บข้อมูลตาราง</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 40px;
+            color: #333;
+        }
+        h2 {
+            color: #2c3e50;
+        }
+        /* ส่วนฟอร์มกรอกข้อมูล */
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .input-group label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+        }
+        input:focus {
+            border-color: #3498db;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #27ae60;
+        }
+        /* ส่วนตาราง */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+            font-weight: 600;
+        }
+        tr {
+            border-bottom: 1px solid #dddddd;
+        }
+        tr:nth-of-type(even) {
+            background-color: #f3f3f3;
+        }
+        tr:last-of-type {
+            border-bottom: 2px solid #34495e;
+        }
+        .btn-delete {
+            background-color: #e74c3c;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+        .no-data {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>📊 ระบบบันทึกข้อมูลตาราง</h2>
+
+    <div class="form-container">
+        <div class="input-group">
+            <label for="name">ชื่อ-นามสกุล</label>
+            <input type="text" id="name" placeholder="กรอกชื่อ...">
+        </div>
+        <div class="input-group">
+            <label for="age">อายุ</label>
+            <input type="number" id="age" placeholder="กรอกอายุ...">
+        </div>
+        <div class="input-group">
+            <label for="job">อาชีพ</label>
+            <input type="text" id="job" placeholder="กรอกอาชีพ...">
+        </div>
+        <button onclick="addData()">➕ เพิ่มข้อมูล</button>
+    </div>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>ลำดับ</th>
+                <th>ชื่อ-นามสกุล</th>
+                <th>อายุ</th>
+                <th>อาชีพ</th>
+                <th>จัดการ</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <tr id="noDataRow">
+                <td colspan="5" class="no-data">ยังไม่มีข้อมูลในตาราง</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        let rowCount = 0;
+
+        function addData() {
+            // ดึงค่าจาก Input
+            const name = document.getElementById('name').value.trim();
+            const age = document.getElementById('age').value.trim();
+            const job = document.getElementById('job').value.trim();
+
+            // ตรวจสอบว่ากรอกข้อมูลครบไหม
+            if (name === '' || age === '' || job === '') {
+                alert('กรุณากรอกข้อมูลให้ครบทุกช่องครับ');
+                return;
+            }
+
+            // ซ่อนแถว "ยังไม่มีข้อมูล" ถ้าเป็นการเพิ่มตัวแรก
+            const noDataRow = document.getElementById('noDataRow');
+            if (noDataRow) {
+                noDataRow.remove();
+            }
+
+            rowCount++;
+            const tableBody = document.getElementById('tableBody');
+
+            // สร้างแถวใหม่ (Row)
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>${rowCount}</td>
+                <td>${name}</td>
+                <td>${age} ปี</td>
+                <td>${job}</td>
+                <td><button class="btn-delete" onclick="deleteRow(this)">ลบ</button></td>
+            `;
+
+            // เพิ่มแถวเข้าไปในตาราง
+            tableBody.appendChild(row);
+
+            // เคลียร์ค่าใน Input หลังกดเพิ่ม
+            document.getElementById('name').value = '';
+            document.getElementById('age').value = '';
+            document.getElementById('job').value = '';
+        }
+
+        function deleteRow(button) {
+            // ลบแถวที่กด
+            const row = button.parentElement.parentElement;
+            row.remove();
+
+            // ถ้าลบจนหมด ให้แสดงข้อความ "ยังไม่มีข้อมูล" เหมือนเดิม
+            const tableBody = document.getElementById('tableBody');
+            if (tableBody.children.length === 0) {
+                tableBody.innerHTML = `
+                    <tr id="noDataRow">
+                        <td colspan="5" class="no-data">ยังไม่มีข้อมูลในตาราง</td>
+                    </tr>
+                `;
+                rowCount = 0; // รีเซ็ตลำดับ
+            } else {
+                // อัปเดตรันเลขลำดับใหม่ให้ถูกต้องหลังจากลบ
+                updateSerialNumbers();
+            }
+        }
+
+        function updateSerialNumbers() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            rowCount = 0;
+            rows.forEach((row) => {
+                rowCount++;
+                row.children[0].innerText = rowCount;
+            });
+        }
+    </script>
+
+</body>
+</html>
